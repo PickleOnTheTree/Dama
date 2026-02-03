@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,8 +12,10 @@ namespace Dama
 {
     class Igra
     {
+        private int dimenzijeKvadratka = 100;
         public List<Figura> Figure = new List<Figura> { };
         public int velikostPlosce = 8;
+        Figura izbranaFigura = null;
 
         public Igra()
         {
@@ -61,7 +65,32 @@ namespace Dama
                 }
             }
         }
-        
+
+        public bool handleClick(Point lokacija)
+        {
+            int x = lokacija.X / dimenzijeKvadratka;
+            int y = lokacija.Y / dimenzijeKvadratka;
+
+            if (izbranaFigura == null)
+            {
+                foreach (Figura f in Figure)
+                {
+                    if (f.X == x && f.Y == y)
+                    {
+                        izbranaFigura = f;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                izbranaFigura.X = x;
+                izbranaFigura.Y = y;
+                izbranaFigura = null;
+            }
+            return false;
+        }
+
 
     }
 }

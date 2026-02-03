@@ -12,6 +12,7 @@ namespace Dama
 {
     public partial class IgraForm : Form
     {
+        Point? debugCircle = null;
         Igra igra;
         private int dimenzijeKvadratka = 100;
         private int borderDebelina = 10;
@@ -24,8 +25,36 @@ namespace Dama
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            this.DoubleBuffered = true;
+            base.OnPaint(e);
             NarisiPlosco(e.Graphics);
             NarisiFigure(e.Graphics, igra.Figure);
+
+            if (debugCircle != null)
+            {
+                Color shadow = Color.FromArgb(100, Color.Black);
+                e.Graphics.FillEllipse(
+                    new SolidBrush(shadow),
+                    debugCircle.Value.X - 37 / 2 + 3,
+                    debugCircle.Value.Y - 37 / 2 + 3,
+                    37,
+                    37
+                );
+                e.Graphics.FillEllipse(
+                    Brushes.Black,
+                    debugCircle.Value.X - 37/2,
+                    debugCircle.Value.Y - 37 / 2,
+                    37,
+                    37
+                );
+                e.Graphics.FillEllipse(
+                    Brushes.Green,
+                    debugCircle.Value.X - 32 / 2,
+                    debugCircle.Value.Y - 32 / 2,
+                    32,
+                    32
+                );
+            }
         }
 
         private void NarisiPlosco(Graphics g)
@@ -72,24 +101,12 @@ namespace Dama
             }
         }
 
-
-        Point firstPoint;
-        Boolean haveFirstPoint;
-
-
-        void Form1_MouseDownDrawing(object sender, System.Windows.Forms.MouseEventArgs e)
+        void Form1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (haveFirstPoint)
-            {
-                Graphics g = this.CreateGraphics();
-                g.DrawLine(Pens.Black, firstPoint, e.Location);
-                haveFirstPoint = false;
-            }
-            else
-            {
-                firstPoint = e.Location;
-                haveFirstPoint = true;
-            }
+            igra.handleClick(e.Location);
+            //System.Diagnostics.Debug.WriteLine("loc" + e.Location);  // run in Debug mode (F5)
+            debugCircle = e.Location;
+            Invalidate();
         }
 
     }

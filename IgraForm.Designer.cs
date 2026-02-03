@@ -37,7 +37,7 @@
             this.ClientSize = new System.Drawing.Size(884, 861);
             this.Name = "IgraForm";
             this.Text = "Checkers";
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDownDrawing);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseClick);
             this.ResumeLayout(false);
 
         }
