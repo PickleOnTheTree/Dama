@@ -103,7 +103,8 @@ namespace Dama
 
         void Form1_MouseClick(object sender, MouseEventArgs e)
         {
-            igra.handleClick(e.Location);
+            Point locationBrezBorderja = new Point(e.X - borderDebelina, e.Y - borderDebelina);
+            igra.handleClick(locationBrezBorderja);
             //System.Diagnostics.Debug.WriteLine("loc" + e.Location);  // run in Debug mode (F5)
             debugCircle = e.Location;
             Invalidate();
