@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.SqlServer.Server;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -38,14 +39,14 @@ namespace Dama
                 {
                     if (j % 2 == 0)
                     {
-                        if(i % 2 == 0)
+                        if (i % 2 == 0)
                         {
                             continue;
-                        } 
+                        }
                     }
                     else
                     {
-                        if(i % 2 == 1)
+                        if (i % 2 == 1)
                         {
                             continue;
                         }
@@ -68,25 +69,43 @@ namespace Dama
 
         public bool handleClick(Point lokacija)
         {
-            int x = lokacija.X / dimenzijeKvadratka;
-            int y = lokacija.Y / dimenzijeKvadratka;
+            int clickXkvadratek = lokacija.X / dimenzijeKvadratka;
+            int clickYkvadratek = lokacija.Y / dimenzijeKvadratka;
 
+            //izberi figuro ce si kliknil nanjo 
             if (izbranaFigura == null)
             {
                 foreach (Figura f in Figure)
                 {
-                    if (f.X == x && f.Y == y)
+                    if (f.X == clickXkvadratek && f.Y == clickYkvadratek)
                     {
                         izbranaFigura = f;
+                        izbranaFigura.IsSelected = true;
                         return true;
                     }
                 }
             }
+            //premakini izbrano figuro
             else
             {
-                izbranaFigura.X = x;
-                izbranaFigura.Y = y;
-                izbranaFigura = null;
+                if (JePremikOk(clickXkvadratek, clickYkvadratek))
+                {
+                    izbranaFigura.X = clickXkvadratek;
+                    izbranaFigura.Y = clickYkvadratek;
+                    izbranaFigura.IsSelected = false;
+                    izbranaFigura = null;
+                }
+
+
+            }
+            return false;
+        }
+
+        private bool JePremikOk(int clickXkvadratek, int clickYkvadratek)
+        {
+            foreach(Figura f in Figure)
+            {
+
             }
             return false;
         }

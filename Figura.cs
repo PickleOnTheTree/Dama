@@ -12,6 +12,7 @@ namespace Dama
         public int X;
         public int Y;
         public Color Barva;
+        public bool IsSelected;
         private bool IsKralj;
 
         public Figura(int x, int y, Color ploscek)
@@ -19,6 +20,7 @@ namespace Dama
             this.X = x;
             this.Y = y;
             this.Barva = ploscek;
+            this.IsSelected = false;
             this.IsKralj = false;
         }
         private void premik(int novX, int novY)
