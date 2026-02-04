@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -103,11 +104,27 @@ namespace Dama
 
         private bool JePremikOk(int clickXkvadratek, int clickYkvadratek)
         {
-            foreach(Figura f in Figure)
+            //ne mors ce je x vecji od plosce, nemors ce je y vecji od plosce, nemors ce je x manjsi od 0, nemors ce je y manjsi od nic                 
+            if (clickXkvadratek >= velikostPlosce || clickYkvadratek >= velikostPlosce || clickXkvadratek < 0 || clickYkvadratek < 0)
             {
-
+                return false;
             }
-            return false;
+
+            //ne dovoli premikanja po belih
+            if ((clickXkvadratek + clickYkvadratek) % 2 == 0)
+            {
+                return false;
+            }
+
+            foreach (Figura f in Figure)
+            {
+                //ne mors ce je tam ze en
+                if (clickXkvadratek == f.X && clickYkvadratek == f.Y)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
 
