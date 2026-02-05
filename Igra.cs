@@ -21,46 +21,39 @@ namespace Dama
     public class Igra
     {
         public List<Figura> Figure { get; private set; } = new List<Figura>();
-        public int velikostPlosce = Nastavitve.VelikostPlosce;
         Figura izbranaFigura = null;
 
-        public Igra()
-        {
-            GenerirajFigure();
-        }
+        public int velikostPlosce => Nastavitve.VelikostPlosce;
+
+        public Igra() => GenerirajFigure();
 
         public void GenerirajFigure()
         {
             Figure.Clear();
-
             for (int j = 0; j < velikostPlosce; j++)
             {
                 for (int i = 0; i < velikostPlosce; i++)
                 {
                     if ((i + j) % 2 == 0) continue;
 
-                    if (j < 3)
-                    {
-                        Figure.Add(new NavadnaFigura(i, j, Color.Red));
-                    }
-                    else if (j > velikostPlosce - 4)
-                    {
-                        Figure.Add(new NavadnaFigura(i, j, Color.Blue));
-                    }
+                    if (j < 3) Figure.Add(new NavadnaFigura(i, j, Color.Red));
+                    else if (j > velikostPlosce - 4) Figure.Add(new NavadnaFigura(i, j, Color.Blue));
                 }
             }
         }
 
+        public Figura this[int x, int y] => Figure.FirstOrDefault(f => f.X == x && f.Y == y);
+
         public bool handleClick(Point lokacija)
         {
-            int clickXkvadratek = lokacija.X / Nastavitve.DimenzijaKvadratka;
-            int clickYkvadratek = lokacija.Y / Nastavitve.DimenzijaKvadratka;
+            int clickX = lokacija.X / Nastavitve.DimenzijaKvadratka;
+            int clickY = lokacija.Y / Nastavitve.DimenzijaKvadratka;
 
             if (izbranaFigura == null)
             {
-                foreach (Figura f in Figure)
+                foreach (var f in Figure)
                 {
-                    if (f.X == clickXkvadratek && f.Y == clickYkvadratek)
+                    if (f.X == clickX && f.Y == clickY)
                     {
                         izbranaFigura = f;
                         izbranaFigura.IsSelected = true;
@@ -70,23 +63,25 @@ namespace Dama
             }
             else
             {
-                if (izbranaFigura.X == clickXkvadratek &&
-                    izbranaFigura.Y == clickYkvadratek)
+                if (izbranaFigura.X == clickX && izbranaFigura.Y == clickY)
                 {
                     izbranaFigura.IsSelected = false;
                     izbranaFigura = null;
                     return true;
                 }
 
-                if (izbranaFigura.JePremikOk(clickXkvadratek, clickYkvadratek, Figure))
+                if (izbranaFigura.JePremikOk(clickX, clickY, Figure))
                 {
-                    izbranaFigura.Premakni(clickXkvadratek, clickYkvadratek);
+                    izbranaFigura.Premakni(clickX, clickY);
 
-                    if (izbranaFigura is NavadnaFigura && (izbranaFigura.Y == 0 || izbranaFigura.Y == velikostPlosce - 1))
+                    // promocija
+                    if (izbranaFigura is NavadnaFigura &&
+                        ((izbranaFigura.Barva == Color.Red && izbranaFigura.Y == Nastavitve.VelikostPlosce - 1) ||
+                         (izbranaFigura.Barva == Color.Blue && izbranaFigura.Y == 0)))
                     {
                         Color barva = izbranaFigura.Barva;
                         Figure.Remove(izbranaFigura);
-                        izbranaFigura = new Kraljica(clickXkvadratek, clickYkvadratek, barva);
+                        izbranaFigura = new Kraljica(clickX, clickY, barva);
                         Figure.Add(izbranaFigura);
                     }
 

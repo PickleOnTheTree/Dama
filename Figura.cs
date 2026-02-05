@@ -7,7 +7,17 @@ using System.Threading.Tasks;
 
 namespace Dama
 {
-    public abstract class Figura
+    public interface IRisljiva
+    {
+        void Narisi(Graphics g, int dimenzijaKvadratka, int border);
+    }
+
+    public interface IPremik
+    {
+        bool JePremikOk(int novX, int novY, List<Figura> figure);
+        void Premakni(int novX, int novY);
+    }
+    public abstract class Figura : IRisljiva, IPremik
     {
         public int X { get; protected set; }
         public int Y { get; protected set; }
@@ -34,16 +44,20 @@ namespace Dama
         {
             if (IsSelected)
             {
-                Brush b1 = new SolidBrush(Color.White);
-                g.FillEllipse(b1, X * dimenzijaKvadratka + 17 + border,
-                                  Y * dimenzijaKvadratka + 17 + border,
-                                  66, 66);
+                using (Brush b1 = new SolidBrush(Color.White))
+                {
+                    g.FillEllipse(b1, X * dimenzijaKvadratka + 17 + border,
+                                      Y * dimenzijaKvadratka + 17 + border,
+                                      66, 66);
+                }
             }
 
-            Brush b = new SolidBrush(Barva);
-            g.FillEllipse(b, X * dimenzijaKvadratka + 20 + border,
-                              Y * dimenzijaKvadratka + 20 + border,
-                              60, 60);
+            using (Brush b = new SolidBrush(Barva))
+            {
+                g.FillEllipse(b, X * dimenzijaKvadratka + 20 + border,
+                                  Y * dimenzijaKvadratka + 20 + border,
+                                  60, 60);
+            }
         }
     }
     public class NavadnaFigura : Figura
@@ -58,17 +72,30 @@ namespace Dama
             if ((novX + novY) % 2 == 0)
                 return false;
 
-            foreach (var f in figure)
-                if (f.X == novX && f.Y == novY)
-                    return false;
+            if (figure.Any(f => f.X == novX && f.Y == novY))
+                return false;
 
-            return Math.Abs(novX - X) == 1 && Math.Abs(novY - Y) == 1;
+            int deltaX = novX - X;
+            int deltaY = novY - Y;
+
+            if (deltaX != 1 && deltaX != -1)
+                return false;
+
+            if (Barva == Color.Red && deltaY != 1)
+                return false;
+            if (Barva == Color.Blue && deltaY != -1)
+                return false;
+
+            return true;
         }
     }
 
     public class Kraljica : Figura
     {
-        public Kraljica(int x, int y, Color barva) : base(x, y, barva) { }
+        public Kraljica(int x, int y, Color barvaOriginal) : base(x, y, barvaOriginal)
+        {
+            Barva = (barvaOriginal == Color.Red) ? Color.Orange : Color.Green;
+        }
 
         public override bool JePremikOk(int novX, int novY, List<Figura> figure)
         {
@@ -78,13 +105,61 @@ namespace Dama
             if ((novX + novY) % 2 == 0)
                 return false;
 
-            foreach (var f in figure)
-                if (f.X == novX && f.Y == novY)
+            int premikX = novX - X;
+            int premikY = novY - Y;
+
+            if (!((premikX == premikY) || (premikX == -premikY)))
+                return false;
+
+            int korakiX = (premikX > 0) ? 1 : -1; 
+            int korakiY = (premikY > 0) ? 1 : -1; 
+
+            int diagonalaX = X + korakiX;
+            int diagonalaY = Y + korakiY;
+            
+            while (diagonalaX != novX && diagonalaY != novY)
+            {
+                if (figure.Any(f => f.X == diagonalaX && f.Y == diagonalaY))
                     return false;
 
-            return Math.Abs(novX - X) == Math.Abs(novY - Y);
+                diagonalaX += korakiX;
+                diagonalaY += korakiY;
+            }
+
+            if (figure.Any(f => f.X == novX && f.Y == novY))
+                return false;
+
+            return true;
         }
 
+        public override void Narisi(Graphics g, int dimenzijaKvadratka, int border)
+        {
+            //ozačen ce izbran
+            if (IsSelected)
+            {
+                using (Brush b1 = new SolidBrush(Color.White))
+                {
+                    g.FillEllipse(b1, X * dimenzijaKvadratka + 17 + border,
+                                      Y * dimenzijaKvadratka + 17 + border,
+                                      66, 66);
+                }
+            }
+            //prebarva ob "promociji"
+            using (Brush b = new SolidBrush(Barva))
+            {
+                g.FillEllipse(b, X * dimenzijaKvadratka + 20 + border,
+                              Y * dimenzijaKvadratka + 20 + border,
+                              60, 60);
+            }
+
+            Color kronaBarva = Color.Yellow; 
+            using (Brush crownBrush = new SolidBrush(kronaBarva))
+            {
+                g.FillEllipse(crownBrush, X * dimenzijaKvadratka + 25 + border,
+                                          Y * dimenzijaKvadratka + 25 + border,
+                                          50, 50);
+            }
+        }
     }
 
 
