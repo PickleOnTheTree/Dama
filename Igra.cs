@@ -12,22 +12,21 @@ using System.Windows.Forms;
 
 namespace Dama
 {
-    class Igra
+    static class Nastavitve
     {
-        private int dimenzijeKvadratka = 100;
-        public List<Figura> Figure = new List<Figura> { };
-        public int velikostPlosce = 8;
+        public const int VelikostPlosce = 8;
+        public static readonly int DimenzijaKvadratka = 100;
+        public static readonly int BorderDebelina = 10;
+    }
+    public class Igra
+    {
+        public List<Figura> Figure { get; private set; } = new List<Figura>();
+        public int velikostPlosce = Nastavitve.VelikostPlosce;
         Figura izbranaFigura = null;
 
         public Igra()
         {
-            Figure = new List<Figura>();
             GenerirajFigure();
-        }
-
-        static void Meni()
-        {
-
         }
 
         public void GenerirajFigure()
@@ -38,31 +37,15 @@ namespace Dama
             {
                 for (int i = 0; i < velikostPlosce; i++)
                 {
-                    if (j % 2 == 0)
-                    {
-                        if (i % 2 == 0)
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (i % 2 == 1)
-                        {
-                            continue;
-                        }
-                    }
+                    if ((i + j) % 2 == 0) continue;
 
                     if (j < 3)
                     {
-                        Figura f = new Figura(i, j, Color.Red);
-                        Figure.Add(f);
+                        Figure.Add(new NavadnaFigura(i, j, Color.Red));
                     }
-
                     else if (j > velikostPlosce - 4)
                     {
-                        Figura f = new Figura(i, j, Color.Blue);
-                        Figure.Add(f);
+                        Figure.Add(new NavadnaFigura(i, j, Color.Blue));
                     }
                 }
             }
@@ -70,10 +53,9 @@ namespace Dama
 
         public bool handleClick(Point lokacija)
         {
-            int clickXkvadratek = lokacija.X / dimenzijeKvadratka;
-            int clickYkvadratek = lokacija.Y / dimenzijeKvadratka;
+            int clickXkvadratek = lokacija.X / Nastavitve.DimenzijaKvadratka;
+            int clickYkvadratek = lokacija.Y / Nastavitve.DimenzijaKvadratka;
 
-            //izberi figuro ce si kliknil nanjo 
             if (izbranaFigura == null)
             {
                 foreach (Figura f in Figure)
@@ -86,47 +68,36 @@ namespace Dama
                     }
                 }
             }
-            //premakini izbrano figuro
             else
             {
-                if (JePremikOk(clickXkvadratek, clickYkvadratek))
+                if (izbranaFigura.X == clickXkvadratek &&
+                    izbranaFigura.Y == clickYkvadratek)
                 {
-                    izbranaFigura.X = clickXkvadratek;
-                    izbranaFigura.Y = clickYkvadratek;
                     izbranaFigura.IsSelected = false;
                     izbranaFigura = null;
+                    return true;
                 }
 
+                if (izbranaFigura.JePremikOk(clickXkvadratek, clickYkvadratek, Figure))
+                {
+                    izbranaFigura.Premakni(clickXkvadratek, clickYkvadratek);
 
+                    if (izbranaFigura is NavadnaFigura && (izbranaFigura.Y == 0 || izbranaFigura.Y == velikostPlosce - 1))
+                    {
+                        Color barva = izbranaFigura.Barva;
+                        Figure.Remove(izbranaFigura);
+                        izbranaFigura = new Kraljica(clickXkvadratek, clickYkvadratek, barva);
+                        Figure.Add(izbranaFigura);
+                    }
+
+                    izbranaFigura.IsSelected = false;
+                    izbranaFigura = null;
+                    return true;
+                }
             }
+
             return false;
         }
-
-        private bool JePremikOk(int clickXkvadratek, int clickYkvadratek)
-        {
-            //ne mors ce je x vecji od plosce, nemors ce je y vecji od plosce, nemors ce je x manjsi od 0, nemors ce je y manjsi od nic                 
-            if (clickXkvadratek >= velikostPlosce || clickYkvadratek >= velikostPlosce || clickXkvadratek < 0 || clickYkvadratek < 0)
-            {
-                return false;
-            }
-
-            //ne dovoli premikanja po belih
-            if ((clickXkvadratek + clickYkvadratek) % 2 == 0)
-            {
-                return false;
-            }
-
-            foreach (Figura f in Figure)
-            {
-                //ne mors ce je tam ze en
-                if (clickXkvadratek == f.X && clickYkvadratek == f.Y)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-
     }
+
 }
