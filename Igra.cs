@@ -20,13 +20,18 @@ namespace Dama
     }
     public class Igra
     {
+        //kapsulacija: seznam figur javno dostopen samo za branje
         public List<Figura> Figure { get; private set; } = new List<Figura>();
+        //zunanji razredi ne vidijo
         Figura izbranaFigura = null;
 
+        //dostop do velikosti plosce
         public int velikostPlosce => Nastavitve.VelikostPlosce;
 
+        //konstruktor
         public Igra() => GenerirajFigure();
 
+        //objektna metoda
         public void GenerirajFigure()
         {
             Figure.Clear();
@@ -42,8 +47,10 @@ namespace Dama
             }
         }
 
+        //indekser dostop z [x,y]
         public Figura this[int x, int y] => Figure.FirstOrDefault(f => f.X == x && f.Y == y);
 
+        //objektna metoda : klik + premik
         public bool handleClick(Point lokacija)
         {
             int clickX = lokacija.X / Nastavitve.DimenzijaKvadratka;

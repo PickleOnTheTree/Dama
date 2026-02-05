@@ -14,15 +14,18 @@ namespace Dama
     {
         Point? debugCircle = null;
         Igra igra;
+        // Kapsulacija: spremenljivke so private
         private int dimenzijeKvadratka = 100;
         private int borderDebelina = 10;
 
+        // Konstruktor
         public IgraForm()
         {
             InitializeComponent();
             igra = new Igra();
         }
 
+        //preoblagana metoda
         protected override void OnPaint(PaintEventArgs e)
         {
             this.DoubleBuffered = true;
@@ -30,6 +33,7 @@ namespace Dama
             NarisiPlosco(e.Graphics);
             NarisiFigure(e.Graphics, igra.Figure);
 
+            //debug
             if (debugCircle != null)
             {
                 Color shadow = Color.FromArgb(100, Color.Black);
@@ -57,6 +61,7 @@ namespace Dama
             }
         }
 
+        //objektna metoda
         private void NarisiPlosco(Graphics g)
         {
             g.FillRectangle(
@@ -90,6 +95,7 @@ namespace Dama
                 }
         }
 
+        //objektna metoda
         public void NarisiFigure(Graphics g, List<Figura> figure)
         {
             foreach (Figura fig in figure)
@@ -108,6 +114,7 @@ namespace Dama
             }
         }
 
+        //objektna metoda
         void Form1_MouseClick(object sender, MouseEventArgs e)
         {
             Point locationBrezBorderja = new Point(e.X - borderDebelina, e.Y - borderDebelina);
