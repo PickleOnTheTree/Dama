@@ -23,6 +23,9 @@ namespace Dama
         {
             InitializeComponent();
             igra = new Igra();
+
+            igra.FiguraPremaknjena += Igra_FiguraPremaknjena;
+            igra.FiguraPremaknjena += Igra_LogPremik;
         }
 
         //preoblagana metoda
@@ -59,6 +62,16 @@ namespace Dama
                     32
                 );
             }
+        }
+        private void Igra_FiguraPremaknjena(object sender, FiguraEventArgs e)
+        {
+            Invalidate(); // redraw okna
+        }
+
+        private void Igra_LogPremik(object sender, FiguraEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"Figura premaknjena na {e.Figura.X}, {e.Figura.Y}");
         }
 
         //objektna metoda

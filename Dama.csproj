@@ -54,7 +54,6 @@
       <DependentUpon>IgraForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Igra.cs" />
-    <Compile Include="IgralnaPlosca.cs" />
     <Compile Include="MeniForm.cs">
       <SubType>Form</SubType>
     </Compile>
