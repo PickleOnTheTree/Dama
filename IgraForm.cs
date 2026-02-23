@@ -113,17 +113,7 @@ namespace Dama
         {
             foreach (Figura fig in figure)
             {
-                if (fig.IsSelected == true)
-                {
-                    Brush b1 = new SolidBrush(Color.White);
-                    int px1 = fig.X * dimenzijeKvadratka + 17 + borderDebelina;
-                    int py1 = fig.Y * dimenzijeKvadratka + 17 + borderDebelina;
-                    g.FillEllipse(b1, px1, py1, 66, 66);
-                }
-                Brush b = new SolidBrush(fig.Barva);
-                int px = fig.X * dimenzijeKvadratka + 20 + borderDebelina;
-                int py = fig.Y * dimenzijeKvadratka + 20 + borderDebelina;
-                g.FillEllipse(b, px, py, 60, 60);
+                fig.Narisi(g, dimenzijeKvadratka, borderDebelina);
             }
         }
 

@@ -29,7 +29,7 @@ namespace Dama
 
     // static razred (static člani, const, readonly)
     static class Nastavitve
-    {
+    {   
         //  static
         public static int VelikostPlosce = 8;
 
@@ -122,29 +122,28 @@ namespace Dama
 
                     IzvediPremik(movedFigura, clickX, clickY);
 
-                    //event obvesti ui o premiku - pass the preserved reference
-                    OnFiguraPremaknjena(movedFigura);
-
-                    // PROMOCIJA:
+                    // PROMOCIJA
                     if (movedFigura is NavadnaFigura &&
                         ((movedFigura.Barva == Color.Red && movedFigura.Y == Nastavitve.VelikostPlosce - 1) ||
                          (movedFigura.Barva == Color.Blue && movedFigura.Y == 0)))
                     {
                         Color barva = movedFigura.Barva;
 
-                        // replace the moved piece with promoted piece
                         Figure.Remove(movedFigura);
 
-                        var promoted = new Kraljica(clickX, clickY, barva);
+                        var promoted = new Kraljica(movedFigura.X, movedFigura.Y, barva);
 
-                        //event obvesti UI o promociji
                         OnFiguraPromovirana(promoted);
 
                         Figure.Add(promoted);
 
-                        // set current selected to promoted piece so multi-jump / state continues correctly
                         izbranaFigura = promoted;
+
+                        movedFigura = promoted; 
                     }
+
+                    // EVENT O PREMIKU (sedaj vedno pravilen objekt)
+                    OnFiguraPremaknjena(movedFigura);
 
                     // If multi-jump is active IzvediPremik will have left izbranaFigura set.
                     if (izbranaFigura != null && izbranaFigura.IsSelected)
