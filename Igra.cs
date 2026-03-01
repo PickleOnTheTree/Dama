@@ -90,36 +90,45 @@ namespace Dama
             int clickX = lokacija.X / Nastavitve.DimenzijaKvadratka;
             int clickY = lokacija.Y / Nastavitve.DimenzijaKvadratka;
 
-            //polimorfizem delo preko abstraktnega tipa Figura
+            var kliknjenaFigura = this[clickX, clickY];
+
+            // Če je multi-jump aktiven, dovolimo klik samo za trenutno figuro
+            if (izbranaFigura != null && izbranaFigura.IsSelected)
+            {
+                if (kliknjenaFigura != null &&
+                    kliknjenaFigura != izbranaFigura &&
+                    kliknjenaFigura.Barva == trenutniIgralec)
+                {
+                    return false; // ne dovoli izbire druge figure
+                }
+            }
+
+            // Če ni izbrane figure → izberi
             if (izbranaFigura == null)
             {
-                foreach (var f in Figure)
+                if (kliknjenaFigura != null && kliknjenaFigura.Barva == trenutniIgralec)
                 {
-                    // only allow selecting a piece that belongs to the current player
-                    if (f.X == clickX && f.Y == clickY && f.Barva == trenutniIgralec)
-                    {
-                        izbranaFigura = f;
-                        izbranaFigura.IsSelected = true;
-                        return true;
-                    }
+                    izbranaFigura = kliknjenaFigura;
+                    izbranaFigura.IsSelected = true;
+                    return true;
                 }
             }
             else
             {
-                // deselect ob drugem kliku
-                if (izbranaFigura.X == clickX && izbranaFigura.Y == clickY)
+                // Klik na isto figuro vedno odznači
+                if (izbranaFigura == kliknjenaFigura)
                 {
                     izbranaFigura.IsSelected = false;
                     izbranaFigura = null;
                     return true;
                 }
 
-                //polimorfizem kliče pravilno implementacijo JePremikOk()
+                // Poskus premika
                 if (izbranaFigura.JePremikOk(clickX, clickY, Figure))
                 {
-                    // preserve reference to the piece being moved so events receive a non-null Figura
-                    Figura movedFigura = izbranaFigura;
 
+
+                    Figura movedFigura = izbranaFigura;
                     IzvediPremik(movedFigura, clickX, clickY);
 
                     // PROMOCIJA
@@ -138,16 +147,14 @@ namespace Dama
                         Figure.Add(promoted);
 
                         izbranaFigura = promoted;
-
-                        movedFigura = promoted; 
+                        movedFigura = promoted;
                     }
 
-                    // EVENT O PREMIKU (sedaj vedno pravilen objekt)
                     OnFiguraPremaknjena(movedFigura);
 
-                    // If multi-jump is active IzvediPremik will have left izbranaFigura set.
+                    // Če je multi-jump še aktiven ostani na isti figuri
                     if (izbranaFigura != null && izbranaFigura.IsSelected)
-                        return true;   // MULTI JUMP AKTIVEN
+                        return true;
 
                     izbranaFigura = null;
                     return true;
@@ -157,10 +164,11 @@ namespace Dama
             return false;
         }
 
+
         //METODE ZA SPROŽITEV EVENTOV
         protected virtual void OnFiguraPremaknjena(Figura figura)
         {
-            // guard against null (extra safety)
+            // previrja da ni null
             if (figura == null) return;
             FiguraPremaknjena?.Invoke(this, new FiguraEventArgs(figura));
         }
@@ -197,6 +205,11 @@ namespace Dama
             // konec poteze
             figura.IsSelected = false;
             izbranaFigura = null;
+
+            // preveri konec igre
+            if (JeKonecIgre())
+                return;
+
             MenjajIgralca();
         }
 
@@ -212,7 +225,6 @@ namespace Dama
             return ImaMoznoJemanjeRekurzivno(figura.X, figura.Y, figura.Barva, new HashSet<(int, int)>());
         }
 
-        // NOTE: use System.Drawing.Color (existing type). 'Barva' type did not exist.
         private bool ImaMoznoJemanjeRekurzivno(int x, int y, Color barva, HashSet<(int, int)> obiskane)
         {
             // vse štiri diagonalne smeri
@@ -266,6 +278,44 @@ namespace Dama
             }
 
             return najdenSkok;
+        }
+        //preveri ali je možna poteza
+        private bool ImaMoznoPotezo(Color barva)
+        {
+            foreach (var f in Figure.Where(x => x.Barva == barva))
+            {
+                for (int x = 0; x < velikostPlosce; x++)
+                {
+                    for (int y = 0; y < velikostPlosce; y++)
+                    {
+                        if (f.JePremikOk(x, y, Figure))
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+        //preveri ali je zmankalo figur, oziroma če ni več možnih potez
+        private bool JeKonecIgre()
+        {
+            bool imaRdece = Figure.Any(f => f.Barva == Color.Red);
+            bool imaModre = Figure.Any(f => f.Barva == Color.Blue);
+
+            if (!imaRdece || !imaModre)
+            {
+                string zmagovalec = imaRdece ? "Rdeči" : "Modri";
+                MessageBox.Show($"Konec igre! Zmagal je {zmagovalec}.");
+                return true;
+            }
+
+            if (!ImaMoznoPotezo(trenutniIgralec))
+            {
+                string zmagovalec = (trenutniIgralec == Color.Red) ? "Modri" : "Rdeči";
+                MessageBox.Show($"Konec igre! {zmagovalec} zmaga (nasprotnik nima potez).");
+                return true;
+            }
+
+            return false;
         }
     }
 }
